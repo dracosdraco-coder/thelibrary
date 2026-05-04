@@ -20,7 +20,7 @@ intGroup.add(bigFloor);
 // ── GLB model ──
 const loader = new THREE.GLTFLoader();
 loader.load(
-  'public/assets/models/Library.glb',
+  '/public/assets/models/Library.glb',
   gltf => {
     const model = gltf.scene;
 
