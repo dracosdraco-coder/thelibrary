@@ -1,8 +1,6 @@
 // ─────────────────────────────────────────
 //  THE LIBRARY — scene/interior.js
 //  Isometric interior — loaded from Library.glb.
-//  Procedural fallback geometry removed; lights,
-//  dust motes, and candleLight kept (main.js animates them).
 // ─────────────────────────────────────────
 
 const intGroup = new THREE.Group();
@@ -24,27 +22,52 @@ loader.load(
   gltf => {
     const model = gltf.scene;
 
-    // Ensure shadows and consistent material rendering
     model.traverse(node => {
       if (node.isMesh) {
         node.castShadow    = true;
         node.receiveShadow = true;
         if (node.material) {
-          node.material.envMapIntensity = 0.6;
+          node.material.envMapIntensity = 0.4;
+          // Force double-sided in case Blender export has flipped normals
+          node.material.side = THREE.DoubleSide;
         }
       }
     });
 
+    // Auto-fit: scale model to fill the iso view, floor at y=0, centered at origin
+    const box    = new THREE.Box3().setFromObject(model);
+    const size   = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale  = 14 / maxDim;       // target ~14 units wide — fits ISO_HALF:11 with margin
+
+    model.scale.setScalar(scale);
+
+    // Recompute after scaling
+    const box2    = new THREE.Box3().setFromObject(model);
+    const center2 = box2.getCenter(new THREE.Vector3());
+    model.position.x = -center2.x;
+    model.position.z = -center2.z;
+    model.position.y = -box2.min.y;   // sit on the floor
+
     intGroup.add(model);
+    console.log('Library.glb loaded — size:', size, 'scale applied:', scale.toFixed(3));
   },
   undefined,
   err => console.error('Library.glb failed to load:', err)
 );
 
 // ── Candle light (animated in main.js) ──
-const candleLight = new THREE.PointLight(0xffaa33, 2.2, 5.5);
-candleLight.position.set(0, 1.05, 0);
+const candleLight = new THREE.PointLight(0xffaa33, 2.2, 12);
+candleLight.position.set(0, 1.5, 0);
 intGroup.add(candleLight);
+
+// ── Isometric fill light — ensures GLB is visible from camera angle ──
+const isoFill = new THREE.DirectionalLight(0xffd8a0, 1.8);
+isoFill.position.set(38, 38, 38);   // same direction as orthoCam
+isoFill.target.position.set(0, 0, 0);
+intGroup.add(isoFill);
+intGroup.add(isoFill.target);
 
 // ── Window spotlight ──
 const winSpot = new THREE.SpotLight(0xffe0a0, 2.5, 22, Math.PI * 0.11, 0.6);
@@ -53,14 +76,14 @@ winSpot.target.position.set(1, 0, 2);
 intGroup.add(winSpot);
 intGroup.add(winSpot.target);
 
-// ── Ambient + ceiling light ──
-intGroup.add(new THREE.AmbientLight(0x3a1c08, 1.4));
-const ceilLight = new THREE.PointLight(0xffaa44, 1.2, 22);
+// ── Ambient + ceiling ──
+intGroup.add(new THREE.AmbientLight(0xffa060, 1.2));
+const ceilLight = new THREE.PointLight(0xffaa44, 1.8, 28);
 ceilLight.position.set(0, 6.5, 0);
 intGroup.add(ceilLight);
 
 // ── Dust motes ──
-const DUST   = 220;
+const DUST    = 220;
 const dustGeo = new THREE.BufferGeometry();
 const dp      = new Float32Array(DUST * 3);
 const dv      = new Float32Array(DUST * 3);
