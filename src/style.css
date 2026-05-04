@@ -1,0 +1,248 @@
+/* ─────────────────────────────────────────
+   THE LIBRARY — styles
+   ───────────────────────────────────────── */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --parchment: #f2ece2;
+  --ink: #1a1410;
+  --amber: #c8873a;
+}
+
+body {
+  background: #0d0a07;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  font-family: 'Cormorant Garamond', serif;
+  cursor: none;
+  user-select: none;
+}
+
+/* ── Canvas ── */
+#canvas-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+canvas {
+  display: block;
+}
+
+/* ── Custom cursor ── */
+#cursor {
+  position: fixed;
+  width: 7px;
+  height: 7px;
+  background: var(--parchment);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: opacity 0.3s;
+}
+
+#cursor-ring {
+  position: fixed;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(242, 236, 226, 0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999;
+  transform: translate(-50%, -50%);
+  transition: width 0.25s, height 0.25s;
+}
+
+/* ── UI layer ── */
+#ui {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── Wordmark ── */
+#wordmark {
+  position: absolute;
+  top: 34px;
+  left: 38px;
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+
+#wordmark .the {
+  display: block;
+  font-family: 'Cormorant SC', serif;
+  font-size: 10px;
+  letter-spacing: 0.38em;
+  color: var(--parchment);
+  opacity: 0.55;
+  font-weight: 300;
+}
+
+#wordmark .library {
+  display: block;
+  font-family: 'Cormorant SC', serif;
+  font-size: 14px;
+  letter-spacing: 0.28em;
+  color: var(--parchment);
+  font-weight: 400;
+}
+
+/* ── Nav ── */
+#nav {
+  position: absolute;
+  top: 38px;
+  right: 38px;
+  display: flex;
+  gap: 34px;
+  pointer-events: all;
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+
+#nav a {
+  font-family: 'Cormorant SC', serif;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--parchment);
+  opacity: 0.45;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+#nav a:hover {
+  opacity: 1;
+}
+
+/* ── Scroll hint ── */
+#scroll-hint {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 0.8s;
+}
+
+#scroll-hint span {
+  font-family: 'Cormorant SC', serif;
+  font-size: 9px;
+  letter-spacing: 0.42em;
+  color: var(--parchment);
+  opacity: 0.38;
+}
+
+#scroll-hint .line {
+  width: 1px;
+  height: 36px;
+  background: linear-gradient(to bottom, rgba(242, 236, 226, 0.38), transparent);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.38; transform: scaleY(1); }
+  50%       { opacity: 0.75; transform: scaleY(1.25); }
+}
+
+/* ── Progress bar ── */
+#progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: rgba(200, 135, 58, 0.4);
+  width: 0%;
+  transition: width 0.1s;
+}
+
+/* ── Phase label ── */
+#phase-label {
+  position: absolute;
+  bottom: 38px;
+  right: 38px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--parchment);
+  opacity: 0;
+  font-style: italic;
+  transition: opacity 0.8s;
+}
+
+/* ── Node tooltip ── */
+#tooltip {
+  position: absolute;
+  background: rgba(13, 10, 7, 0.92);
+  border: 1px solid rgba(200, 135, 58, 0.28);
+  color: var(--parchment);
+  padding: 9px 15px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  font-family: 'Cormorant SC', serif;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+}
+
+/* ── Film grain overlay ── */
+#grain {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ── Vignette ── */
+#vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 38%, rgba(8, 5, 3, 0.72) 100%);
+}
+
+/* ── Entry title overlay ── */
+#instructions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 1s;
+}
+
+#instructions h1 {
+  font-family: 'Cormorant SC', serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 300;
+  color: var(--parchment);
+  letter-spacing: 0.2em;
+  line-height: 1.1;
+}
+
+#instructions p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  color: rgba(242, 236, 226, 0.35);
+  margin-top: 20px;
+}
