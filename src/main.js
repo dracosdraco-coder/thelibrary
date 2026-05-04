@@ -76,6 +76,7 @@ const progressBar = document.getElementById('progress-bar');
 const phaseLabel  = document.getElementById('phase-label');
 const tooltip     = document.getElementById('tooltip');
 const instructions= document.getElementById('instructions');
+const curtain     = document.getElementById('curtain');
 
 // ── Helpers ──
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -133,6 +134,14 @@ function animate() {
   // ── Smoothstep the global progress for easing ──
   const sp  = progress;
   const spS = sp * sp * (3 - 2 * sp);
+
+  // ── Curtain: fade to black around the phase switch to hide the camera cut ──
+  const curtainZone = 0.038;
+  const curtainDist = Math.abs(sp - CONFIG.P_SWITCH);
+  const curtainVal  = curtainDist < curtainZone
+    ? (1 - curtainDist / curtainZone).toFixed(3)
+    : '0';
+  curtain.style.opacity = curtainVal;
 
   // ════════════════════════════════════════
   //  PHASE 1 — Walk up to the door

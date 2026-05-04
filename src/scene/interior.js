@@ -5,13 +5,13 @@
 const intGroup = new THREE.Group();
 intGroup.visible = false;
 
-// MeshBasicMaterial — unaffected by lights, stays dark
+// Dark base — same tone as BG_INTERIOR, unlit
 const bigFloor = new THREE.Mesh(
   new THREE.PlaneGeometry(120, 120),
   new THREE.MeshBasicMaterial({ color: 0x0d0a07 })
 );
 bigFloor.rotation.x = -Math.PI / 2;
-bigFloor.position.set(0, -0.12, 0);
+bigFloor.position.set(0, -0.02, 0);
 intGroup.add(bigFloor);
 
 // ── GLB model ──
@@ -21,8 +21,17 @@ loader.load(
   gltf => {
     const model = gltf.scene;
 
+    // Pass 1 — strip large flat planes that were part of the Blender scene
+    // (floor/ground planes inflate the bounding box and appear as the teal diamond)
     model.traverse(node => {
       if (node.isMesh) {
+        const b = new THREE.Box3().setFromObject(node);
+        const s = b.getSize(new THREE.Vector3());
+        // Large flat plane: very thin vertically, wide in both horizontal axes
+        if (s.y < 0.4 && s.x > 4 && s.z > 4) {
+          node.visible = false;
+          return;
+        }
         node.castShadow    = true;
         node.receiveShadow = true;
         if (node.material) {
@@ -31,18 +40,20 @@ loader.load(
       }
     });
 
-    // Rotate so the open interior faces the iso camera at (38,38,38)
+    // Rotate so the open interior faces the iso camera at (38, 38, 38)
     model.rotation.y = Math.PI;
 
-    // Auto-fit using horizontal footprint only (ignore ceiling height for scale)
+    // Auto-fit: scale so the model fills the ISO frame
+    // target = ISO_HALF × 2.6 gives ~90% fill of vertical frustum
     const box    = new THREE.Box3().setFromObject(model);
     const size   = box.getSize(new THREE.Vector3());
     const maxH   = Math.max(size.x, size.z);
-    const scale  = 16 / maxH;
+    const target = CONFIG.ISO_HALF * 2.6;
+    const scale  = target / maxH;
 
     model.scale.setScalar(scale);
 
-    // Re-center after scale
+    // Re-center after scale, sit on floor
     const box2    = new THREE.Box3().setFromObject(model);
     const center2 = box2.getCenter(new THREE.Vector3());
     model.position.x = -center2.x;
@@ -50,24 +61,24 @@ loader.load(
     model.position.y = -box2.min.y;
 
     intGroup.add(model);
-    console.log('Library.glb — size:', size, '  scale:', scale.toFixed(3));
+    console.log('Library.glb — original size:', size, '  scale applied:', scale.toFixed(3));
   },
   undefined,
   err => console.error('Library.glb failed:', err)
 );
 
 // ── Candle light (animated in main.js) ──
-const candleLight = new THREE.PointLight(0xffaa33, 2.2, 12);
-candleLight.position.set(0, 1.5, 0);
+const candleLight = new THREE.PointLight(0xffaa33, 2.2, 14);
+candleLight.position.set(0, 2, 0);
 intGroup.add(candleLight);
 
-// ── Warm ceiling fill ──
-const ceilLight = new THREE.PointLight(0xffaa44, 2.0, 30);
-ceilLight.position.set(0, 8, 0);
+// ── Ceiling fill ──
+const ceilLight = new THREE.PointLight(0xffaa44, 2.2, 32);
+ceilLight.position.set(0, 9, 0);
 intGroup.add(ceilLight);
 
-// ── Subtle iso-angle directional so walls facing the camera are lit ──
-const isoFill = new THREE.DirectionalLight(0xffc88a, 0.6);
+// ── Directional from iso camera direction so faces are lit ──
+const isoFill = new THREE.DirectionalLight(0xffc88a, 0.55);
 isoFill.position.set(38, 38, 38);
 isoFill.target.position.set(0, 0, 0);
 intGroup.add(isoFill);
@@ -84,7 +95,7 @@ const dv      = new Float32Array(DUST * 3);
 
 for (let i = 0; i < DUST; i++) {
   dp[i * 3]     = (Math.random() - 0.5) * 13;
-  dp[i * 3 + 1] = Math.random() * 6.5;
+  dp[i * 3 + 1] = Math.random() * 7;
   dp[i * 3 + 2] = (Math.random() - 0.5) * 11;
   dv[i * 3]     = (Math.random() - 0.5) * 0.003;
   dv[i * 3 + 1] = 0.002 + Math.random() * 0.004;

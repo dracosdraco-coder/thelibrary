@@ -22,7 +22,7 @@ const CONFIG = {
 
   // ── Isometric camera ──
   ISO_DIST:    38,         // distance from origin on each axis (equal = true iso)
-  ISO_HALF:    11,         // ortho frustum half-size — controls zoom level
+  ISO_HALF:    5,          // ortho frustum half-size — controls zoom level
   ISO_TARGET:  { x: 0, y: 1.5, z: 0 }, // where the iso camera looks
   ISO_FLOAT_AMP:   0.25,   // subtle up/down float amplitude
   ISO_FLOAT_FREQ:  0.38,   // float frequency

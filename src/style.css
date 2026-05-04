@@ -209,6 +209,16 @@ canvas {
   background-size: 200px 200px;
 }
 
+/* ── Scene transition curtain ── */
+#curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: #0d0a07;
+  opacity: 0;
+}
+
 /* ── Vignette ── */
 #vignette {
   position: fixed;
