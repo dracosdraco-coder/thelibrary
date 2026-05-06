@@ -182,7 +182,7 @@ function animate() {
     const t1  = clamp((sp - CONFIG.P_SWITCH) / (1 - CONFIG.P_SWITCH), 0, 1);
     const t1s = t1 * t1 * (3 - 2 * t1);
 
-    extGroup.visible = t1 < 0.22;
+    extGroup.visible = t1 < 0.05;
     intGroup.visible = true;
     activeCamera     = orthoCam;
     scene.background.setHex(CONFIG.BG_INTERIOR);
